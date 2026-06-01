@@ -15,6 +15,8 @@ Production-ready Python GraphQL API backend for EV leasing inventory management.
 docker compose up --build
 ```
 
+`migration_runner` runs `alembic upgrade head` before the API container starts.
+
 GraphQL endpoint:
 
 - `http://localhost:8000/graphql`

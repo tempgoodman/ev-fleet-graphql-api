@@ -1,4 +1,19 @@
 services:
+  migration_runner:
+    build: .
+    container_name: ev-fleet-migration-runner
+    environment:
+      POSTGRES_DB: ev_fleet
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   api:
     build: .
     container_name: ev-fleet-api
@@ -13,6 +28,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migration_runner:
+        condition: service_completed_successfully
 
   db:
     image: postgres:16-alpine

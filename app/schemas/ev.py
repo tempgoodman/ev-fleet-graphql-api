@@ -27,6 +27,13 @@ class EVType:
     updated_at: datetime
 
 
+@strawberry.type
+class EVStatusChangedType:
+    ev_id: UUID
+    old_status: EVStatusType
+    new_status: EVStatusType
+
+
 @strawberry.input
 class CreateEVInput:
     make: str

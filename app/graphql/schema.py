@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from uuid import UUID
 
 import strawberry
 
+from app.events.dispatcher import ev_status_broker
 from app.resolvers.ev_resolvers import create_ev, delete_ev, get_ev, list_evs, update_ev
-from app.schemas.ev import CreateEVInput, EVType, UpdateEVInput
+from app.schemas.ev import CreateEVInput, EVStatusChangedType, EVStatusType, EVType, UpdateEVInput
 
 
 @strawberry.type
@@ -45,4 +47,21 @@ class Mutation:
         return await delete_ev(session, id)
 
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+@strawberry.type
+class Subscription:
+    @strawberry.subscription
+    async def watch_ev_status(
+        self, ev_id: UUID | None = None
+    ) -> AsyncGenerator[EVStatusChangedType, None]:
+        async for event in ev_status_broker.subscribe():
+            if ev_id is not None and event.ev_id != str(ev_id):
+                continue
+
+            yield EVStatusChangedType(
+                ev_id=UUID(event.ev_id),
+                old_status=EVStatusType(event.old_status),
+                new_status=EVStatusType(event.new_status),
+            )
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)

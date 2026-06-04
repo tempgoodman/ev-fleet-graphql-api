@@ -2,12 +2,78 @@ from __future__ import annotations
 
 from uuid import UUID
 
+import strawberry
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import load_only
 
 from app.events.dispatcher import dispatch_ev_status_changed
 from app.models.ev import EV, EVStatus
 from app.schemas.ev import CreateEVInput, UpdateEVInput
+
+
+_GRAPHQL_TO_EV_COLUMN = {
+    "id": EV.id,
+    "make": EV.make,
+    "model": EV.model,
+    "batteryCapacityKwh": EV.battery_capacity_kwh,
+    "battery_capacity_kwh": EV.battery_capacity_kwh,
+    "rangeMiles": EV.range_miles,
+    "range_miles": EV.range_miles,
+    "monthlyLeasePrice": EV.monthly_lease_price,
+    "monthly_lease_price": EV.monthly_lease_price,
+    "status": EV.status,
+    "createdAt": EV.created_at,
+    "created_at": EV.created_at,
+    "updatedAt": EV.updated_at,
+    "updated_at": EV.updated_at,
+}
+
+
+def _collect_requested_ev_fields(
+    selections: list[object],
+    *,
+    at_ev_level: bool = False,
+) -> set[str]:
+    requested_fields: set[str] = set()
+    for selection in selections:
+        selection_name = getattr(selection, "name", None)
+        nested_selections = getattr(selection, "selections", None) or []
+
+        if at_ev_level:
+            if selection_name:
+                requested_fields.add(selection_name)
+                continue
+            if nested_selections:
+                requested_fields.update(
+                    _collect_requested_ev_fields(nested_selections, at_ev_level=True),
+                )
+            continue
+
+        if selection_name in {"ev", "evs"} and nested_selections:
+            requested_fields.update(
+                _collect_requested_ev_fields(nested_selections, at_ev_level=True),
+            )
+            continue
+
+        if selection_name in _GRAPHQL_TO_EV_COLUMN:
+            requested_fields.add(selection_name)
+            continue
+
+        if selection_name is None and nested_selections:
+            requested_fields.update(_collect_requested_ev_fields(nested_selections))
+
+    return requested_fields
+
+
+def _ev_load_only_columns(info: strawberry.Info) -> list[object]:
+    requested_fields = _collect_requested_ev_fields(info.selected_fields)
+    selected_columns = {EV.id}
+    for field_name in requested_fields:
+        column = _GRAPHQL_TO_EV_COLUMN.get(field_name)
+        if column is not None:
+            selected_columns.add(column)
+    return list(selected_columns)
 
 
 def _apply_filters(
@@ -30,17 +96,23 @@ def _apply_filters(
     return query
 
 
-async def get_ev(session: AsyncSession, ev_id: UUID) -> EV | None:
-    return await session.get(EV, ev_id)
+async def get_ev(session: AsyncSession, info: strawberry.Info, ev_id: UUID) -> EV | None:
+    return await session.get(EV, ev_id, options=[load_only(*_ev_load_only_columns(info))])
 
 
 async def list_evs(
     session: AsyncSession,
+    info: strawberry.Info,
     make: str | None = None,
     max_price: float | None = None,
     status: str | None = None,
 ) -> list[EV]:
-    query = _apply_filters(select(EV), make, max_price, status)
+    query = _apply_filters(
+        select(EV).options(load_only(*_ev_load_only_columns(info))),
+        make,
+        max_price,
+        status,
+    )
     result = await session.execute(query)
     return list(result.scalars().all())
 

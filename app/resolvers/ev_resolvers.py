@@ -68,7 +68,12 @@ def _collect_requested_ev_fields(
 
 def _ev_load_only_columns(info: strawberry.Info) -> list[object]:
     requested_fields = _collect_requested_ev_fields(info.selected_fields)
-    selected_columns = {EV.id}
+    selected_columns = {
+        EV.id,
+        EV.make,
+        EV.status,
+        EV.monthly_lease_price,
+    }
     for field_name in requested_fields:
         column = _GRAPHQL_TO_EV_COLUMN.get(field_name)
         if column is not None:

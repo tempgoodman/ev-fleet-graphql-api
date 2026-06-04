@@ -22,7 +22,7 @@ class DynamicFieldSelectionTests(unittest.TestCase):
 
         selected_columns = {column.key for column in _ev_load_only_columns(info)}
 
-        self.assertSetEqual(selected_columns, {"id", "make", "monthly_lease_price"})
+        self.assertSetEqual(selected_columns, {"id", "make", "status", "monthly_lease_price"})
 
     def test_ignores_nested_relationship_fields(self) -> None:
         info = _Info(
@@ -39,7 +39,7 @@ class DynamicFieldSelectionTests(unittest.TestCase):
 
         selected_columns = {column.key for column in _ev_load_only_columns(info)}
 
-        self.assertSetEqual(selected_columns, {"id", "model"})
+        self.assertSetEqual(selected_columns, {"id", "model", "make", "status", "monthly_lease_price"})
 
 
 if __name__ == "__main__":

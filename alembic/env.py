@@ -9,7 +9,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.db.database import Base
-from app.models import EV  # noqa: F401
+from app.models import EV, EnergyTariff  # noqa: F401
 
 config = context.config
 

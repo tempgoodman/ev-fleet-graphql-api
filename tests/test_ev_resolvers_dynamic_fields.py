@@ -17,14 +17,14 @@ class _Info:
 
 
 class DynamicFieldSelectionTests(unittest.TestCase):
-    def test_includes_primary_key_and_requested_direct_columns(self) -> None:
+    def test_includes_only_primary_key_and_requested_direct_columns_without_filters(self) -> None:
         info = _Info([_Selection("ev", [_Selection("make"), _Selection("monthlyLeasePrice")])])
 
         selected_columns = {column.key for column in _ev_load_only_columns(info)}
 
-        self.assertSetEqual(selected_columns, {"id", "make", "status", "monthly_lease_price"})
+        self.assertSetEqual(selected_columns, {"id", "make", "monthly_lease_price"})
 
-    def test_ignores_nested_relationship_fields(self) -> None:
+    def test_includes_filter_columns_conditionally(self) -> None:
         info = _Info(
             [
                 _Selection(
@@ -37,7 +37,15 @@ class DynamicFieldSelectionTests(unittest.TestCase):
             ],
         )
 
-        selected_columns = {column.key for column in _ev_load_only_columns(info)}
+        selected_columns = {
+            column.key
+            for column in _ev_load_only_columns(
+                info,
+                make="Tes",
+                max_price=450.0,
+                status="AVAILABLE",
+            )
+        }
 
         self.assertSetEqual(selected_columns, {"id", "model", "make", "status", "monthly_lease_price"})
 

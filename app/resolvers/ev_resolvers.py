@@ -66,14 +66,20 @@ def _collect_requested_ev_fields(
     return requested_fields
 
 
-def _ev_load_only_columns(info: strawberry.Info) -> list[object]:
+def _ev_load_only_columns(
+    info: strawberry.Info,
+    make: str | None = None,
+    max_price: float | None = None,
+    status: str | None = None,
+) -> list[object]:
     requested_fields = _collect_requested_ev_fields(info.selected_fields)
-    selected_columns = {
-        EV.id,
-        EV.make,
-        EV.status,
-        EV.monthly_lease_price,
-    }
+    selected_columns = {EV.id}
+    if make is not None:
+        selected_columns.add(EV.make)
+    if max_price is not None:
+        selected_columns.add(EV.monthly_lease_price)
+    if status is not None:
+        selected_columns.add(EV.status)
     for field_name in requested_fields:
         column = _GRAPHQL_TO_EV_COLUMN.get(field_name)
         if column is not None:
@@ -113,7 +119,7 @@ async def list_evs(
     status: str | None = None,
 ) -> list[EV]:
     query = _apply_filters(
-        select(EV).options(load_only(*_ev_load_only_columns(info))),
+        select(EV).options(load_only(*_ev_load_only_columns(info, make, max_price, status))),
         make,
         max_price,
         status,

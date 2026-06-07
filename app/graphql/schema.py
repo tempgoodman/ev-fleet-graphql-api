@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from uuid import UUID
 
 import strawberry
 
+from app.events.event_hub import subscribe_ev_status
 from app.resolvers.ev_resolvers import create_ev, delete_ev, get_ev, list_evs, update_ev
 from app.schemas.ev import CreateEVInput, EVType, UpdateEVInput
 
@@ -45,4 +47,12 @@ class Mutation:
         return await delete_ev(session, id)
 
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+@strawberry.type
+class Subscription:
+    @strawberry.subscription
+    async def watch_ev_status(self, ev_id: str) -> AsyncGenerator[str, None]:
+        async for status in subscribe_ev_status(ev_id):
+            yield status
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)

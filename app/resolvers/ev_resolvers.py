@@ -7,7 +7,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import load_only
 
-from app.events.dispatcher import dispatch_ev_status_changed
+from app.events.event_hub import trigger_ev_status_publish
 from app.models.ev import EV, EVStatus
 from app.schemas.ev import CreateEVInput, UpdateEVInput
 
@@ -167,7 +167,7 @@ async def update_ev(session: AsyncSession, ev_id: UUID, input_data: UpdateEVInpu
     await session.refresh(ev)
 
     if ev.status.value != old_status:
-        dispatch_ev_status_changed(str(ev.id), old_status, ev.status.value)
+        await trigger_ev_status_publish(str(ev.id), ev.status.value)
 
     return ev
 

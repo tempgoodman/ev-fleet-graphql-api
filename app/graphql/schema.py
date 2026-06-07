@@ -13,7 +13,7 @@ class Query:
     @strawberry.field
     async def ev(self, info: strawberry.Info, id: UUID) -> EVType | None:
         session = info.context["session"]
-        return await get_ev(session, id)
+        return await get_ev(session, info, id)
 
     @strawberry.field
     async def evs(
@@ -24,7 +24,7 @@ class Query:
         status: str | None = None,
     ) -> list[EVType]:
         session = info.context["session"]
-        return await list_evs(session, make, max_price, status)
+        return await list_evs(session, info, make, max_price, status)
 
 
 @strawberry.type

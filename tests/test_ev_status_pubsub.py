@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncGenerator
 import unittest
+from typing import Any, Coroutine, cast
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
@@ -50,8 +52,13 @@ class EventHubTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_subscription_stream_yields_published_status(self) -> None:
         subscription = Subscription()
-        status_stream = subscription.watch_ev_status("ev-3")
-        status_task = asyncio.create_task(anext(status_stream))
+        status_stream = cast(
+            AsyncGenerator[str, None],
+            cast(Any, subscription.watch_ev_status)("ev-3"),
+        )
+        status_task: asyncio.Task[str] = asyncio.create_task(
+            cast(Coroutine[Any, Any, str], anext(status_stream))
+        )
         await asyncio.sleep(0)
 
         await trigger_ev_status_publish("ev-3", "AVAILABLE")

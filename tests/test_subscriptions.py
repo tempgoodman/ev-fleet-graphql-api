@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncGenerator
+from typing import Any, Coroutine, cast
 
 import pytest
 
@@ -26,8 +28,13 @@ async def test_watch_ev_status_receives_update_from_update_ev_mutation(
     await db_session.refresh(ev)
 
     subscription = Subscription()
-    status_stream = subscription.watch_ev_status(str(ev.id))
-    first_event = asyncio.create_task(anext(status_stream))
+    status_stream = cast(
+        AsyncGenerator[str, None],
+        cast(Any, subscription.watch_ev_status)(str(ev.id)),
+    )
+    first_event: asyncio.Task[str] = asyncio.create_task(
+        cast(Coroutine[Any, Any, str], anext(status_stream))
+    )
     await asyncio.sleep(0)
 
     mutation_payload = await graphql_request(

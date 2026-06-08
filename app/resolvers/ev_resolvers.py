@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import Any, Protocol
 from uuid import UUID
 
 import strawberry
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import load_only
+from sqlalchemy.orm import QueryableAttribute, load_only
 
 from app.events.event_hub import trigger_ev_status_publish
 from app.models.ev import EV, EVStatus
@@ -30,8 +32,12 @@ _GRAPHQL_TO_EV_COLUMN = {
 }
 
 
+class _HasSelectedFields(Protocol):
+    selected_fields: Sequence[object]
+
+
 def _collect_requested_ev_fields(
-    selections: list[object],
+    selections: Sequence[object],
     *,
     at_ev_level: bool = False,
 ) -> set[str]:
@@ -67,13 +73,13 @@ def _collect_requested_ev_fields(
 
 
 def _ev_load_only_columns(
-    info: strawberry.Info,
+    info: strawberry.Info | _HasSelectedFields,
     make: str | None = None,
     max_price: float | None = None,
     status: str | None = None,
-) -> list[object]:
+) -> list[QueryableAttribute[Any]]:
     requested_fields = _collect_requested_ev_fields(info.selected_fields)
-    selected_columns = {EV.id}
+    selected_columns: set[QueryableAttribute[Any]] = {EV.id}
     if make is not None:
         selected_columns.add(EV.make)
     if max_price is not None:

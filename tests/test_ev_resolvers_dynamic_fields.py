@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 import unittest
 
 from app.resolvers.ev_resolvers import _ev_load_only_columns
@@ -14,6 +15,8 @@ class _Selection:
 
 
 class _Info:
+    selected_fields: Sequence[object]
+
     def __init__(self, selected_fields: list[_Selection]) -> None:
         self.selected_fields = selected_fields
 

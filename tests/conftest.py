@@ -40,7 +40,9 @@ async def session_maker(engine: Any) -> async_sessionmaker[AsyncSession]:
 
 
 @pytest_asyncio.fixture
-async def db_session(session_maker: async_sessionmaker[AsyncSession]) -> AsyncGenerator[AsyncSession, None]:
+async def db_session(
+    session_maker: async_sessionmaker[AsyncSession],
+) -> AsyncGenerator[AsyncSession, None]:
     async with session_maker() as session:
         yield session
 
@@ -49,7 +51,9 @@ async def db_session(session_maker: async_sessionmaker[AsyncSession]) -> AsyncGe
 async def graphql_context(db_session: AsyncSession) -> dict[str, Any]:
     return {
         "session": db_session,
-        "energy_tariff_by_ev_id_loader": create_energy_tariff_by_ev_id_loader(db_session),
+        "energy_tariff_by_ev_id_loader": create_energy_tariff_by_ev_id_loader(
+            db_session
+        ),
     }
 
 
@@ -71,7 +75,9 @@ async def graphql_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient
 async def graphql_request(
     graphql_client: AsyncClient,
 ) -> Callable[[str, dict[str, Any] | None], Awaitable[dict[str, Any]]]:
-    async def _request(query: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
+    async def _request(
+        query: str, variables: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         response = await graphql_client.post(
             "/graphql",
             json={"query": query, "variables": variables or {}},

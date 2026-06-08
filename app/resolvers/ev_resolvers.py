@@ -107,8 +107,12 @@ def _apply_filters(
     return query
 
 
-async def get_ev(session: AsyncSession, info: strawberry.Info, ev_id: UUID) -> EV | None:
-    return await session.get(EV, ev_id, options=[load_only(*_ev_load_only_columns(info))])
+async def get_ev(
+    session: AsyncSession, info: strawberry.Info, ev_id: UUID
+) -> EV | None:
+    return await session.get(
+        EV, ev_id, options=[load_only(*_ev_load_only_columns(info))]
+    )
 
 
 async def list_evs(
@@ -119,7 +123,9 @@ async def list_evs(
     status: str | None = None,
 ) -> list[EV]:
     query = _apply_filters(
-        select(EV).options(load_only(*_ev_load_only_columns(info, make, max_price, status))),
+        select(EV).options(
+            load_only(*_ev_load_only_columns(info, make, max_price, status))
+        ),
         make,
         max_price,
         status,
@@ -143,7 +149,9 @@ async def create_ev(session: AsyncSession, input_data: CreateEVInput) -> EV:
     return ev
 
 
-async def update_ev(session: AsyncSession, ev_id: UUID, input_data: UpdateEVInput) -> EV | None:
+async def update_ev(
+    session: AsyncSession, ev_id: UUID, input_data: UpdateEVInput
+) -> EV | None:
     ev = await session.get(EV, ev_id)
     if not ev:
         return None

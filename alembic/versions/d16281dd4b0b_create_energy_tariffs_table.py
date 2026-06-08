@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd16281dd4b0b'
-down_revision: Union[str, None] = '20260601_000001'
+revision: str = "d16281dd4b0b"
+down_revision: Union[str, None] = "20260601_000001"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -28,7 +28,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["ev_id"], ["evs.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_energy_tariffs_ev_id"), "energy_tariffs", ["ev_id"], unique=True)
+    op.create_index(
+        op.f("ix_energy_tariffs_ev_id"), "energy_tariffs", ["ev_id"], unique=True
+    )
 
 
 def downgrade() -> None:

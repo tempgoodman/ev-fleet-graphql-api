@@ -70,7 +70,9 @@ async def test_evs_query_applies_dynamic_filters(graphql_request, db_session) ->
 
 
 @pytest.mark.asyncio
-async def test_recommended_tariff_is_batched_to_single_tariff_query(graphql_request, db_session) -> None:
+async def test_recommended_tariff_is_batched_to_single_tariff_query(
+    graphql_request, db_session
+) -> None:
     ev_one = EV(
         id=uuid4(),
         make="Tesla",
@@ -105,7 +107,9 @@ async def test_recommended_tariff_is_batched_to_single_tariff_query(graphql_requ
 
     tariff_query_count: list[str] = []
 
-    def _count_tariff_queries(_conn, _cursor, statement, _parameters, _context, _executemany) -> None:
+    def _count_tariff_queries(
+        _conn, _cursor, statement, _parameters, _context, _executemany
+    ) -> None:
         if "FROM energy_tariffs" in statement:
             tariff_query_count.append(statement)
 

@@ -17,11 +17,17 @@ async def _load_energy_tariffs_by_ev_ids(
     if not ev_ids:
         return []
 
-    result = await session.execute(select(EnergyTariff).where(EnergyTariff.ev_id.in_(ev_ids)))
+    result = await session.execute(
+        select(EnergyTariff).where(EnergyTariff.ev_id.in_(ev_ids))
+    )
     tariffs: Sequence[EnergyTariff] = result.scalars().all()
     tariff_by_ev_id = {tariff.ev_id: tariff for tariff in tariffs}
     return [tariff_by_ev_id.get(ev_id) for ev_id in ev_ids]
 
 
-def create_energy_tariff_by_ev_id_loader(session: AsyncSession) -> DataLoader[UUID, EnergyTariff | None]:
-    return DataLoader(load_fn=lambda ev_ids: _load_energy_tariffs_by_ev_ids(ev_ids, session))
+def create_energy_tariff_by_ev_id_loader(
+    session: AsyncSession,
+) -> DataLoader[UUID, EnergyTariff | None]:
+    return DataLoader(
+        load_fn=lambda ev_ids: _load_energy_tariffs_by_ev_ids(ev_ids, session)
+    )

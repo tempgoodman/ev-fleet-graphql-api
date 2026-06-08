@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 class EnergyTariff(Base):
     __tablename__ = "energy_tariffs"
 
-    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     price_per_kwh: Mapped[float] = mapped_column(Float, nullable=False)
     ev_id: Mapped[uuid.UUID] = mapped_column(

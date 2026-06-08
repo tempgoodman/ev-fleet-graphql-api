@@ -6,7 +6,9 @@ from app.resolvers.ev_resolvers import _ev_load_only_columns
 
 
 class _Selection:
-    def __init__(self, name: str | None = None, selections: list["_Selection"] | None = None) -> None:
+    def __init__(
+        self, name: str | None = None, selections: list["_Selection"] | None = None
+    ) -> None:
         self.name = name
         self.selections = selections or []
 
@@ -17,8 +19,12 @@ class _Info:
 
 
 class DynamicFieldSelectionTests(unittest.TestCase):
-    def test_includes_only_primary_key_and_requested_direct_columns_without_filters(self) -> None:
-        info = _Info([_Selection("ev", [_Selection("make"), _Selection("monthlyLeasePrice")])])
+    def test_includes_only_primary_key_and_requested_direct_columns_without_filters(
+        self,
+    ) -> None:
+        info = _Info(
+            [_Selection("ev", [_Selection("make"), _Selection("monthlyLeasePrice")])]
+        )
 
         selected_columns = {column.key for column in _ev_load_only_columns(info)}
 
@@ -47,7 +53,9 @@ class DynamicFieldSelectionTests(unittest.TestCase):
             )
         }
 
-        self.assertSetEqual(selected_columns, {"id", "model", "make", "status", "monthly_lease_price"})
+        self.assertSetEqual(
+            selected_columns, {"id", "model", "make", "status", "monthly_lease_price"}
+        )
 
 
 if __name__ == "__main__":

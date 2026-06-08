@@ -37,7 +37,9 @@ class Mutation:
         return await create_ev(session, input)
 
     @strawberry.mutation
-    async def update_ev(self, info: strawberry.Info, id: UUID, input: UpdateEVInput) -> EVType | None:
+    async def update_ev(
+        self, info: strawberry.Info, id: UUID, input: UpdateEVInput
+    ) -> EVType | None:
         session = info.context["session"]
         return await update_ev(session, id, input)
 

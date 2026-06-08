@@ -37,7 +37,9 @@ class EVType:
     updated_at: datetime
 
     @strawberry.field
-    async def recommended_tariff(self, info: strawberry.Info) -> EnergyTariffType | None:
+    async def recommended_tariff(
+        self, info: strawberry.Info
+    ) -> EnergyTariffType | None:
         loader = info.context["energy_tariff_by_ev_id_loader"]
         tariff: EnergyTariff | None = await loader.load(self.id)
         if tariff is None:

@@ -76,7 +76,9 @@ class UpdateEvPublishTests(unittest.IsolatedAsyncioTestCase):
         session.commit = AsyncMock()
         session.refresh = AsyncMock()
 
-        with patch("app.resolvers.ev_resolvers.trigger_ev_status_publish", new=AsyncMock()) as publish:
+        with patch(
+            "app.resolvers.ev_resolvers.trigger_ev_status_publish", new=AsyncMock()
+        ) as publish:
             await update_ev(session, ev.id, UpdateEVInput(status=EVStatusType.LEASED))
 
         publish.assert_awaited_once_with(str(ev.id), EVStatus.LEASED.value)
@@ -96,8 +98,12 @@ class UpdateEvPublishTests(unittest.IsolatedAsyncioTestCase):
         session.commit = AsyncMock()
         session.refresh = AsyncMock()
 
-        with patch("app.resolvers.ev_resolvers.trigger_ev_status_publish", new=AsyncMock()) as publish:
-            await update_ev(session, ev.id, UpdateEVInput(status=EVStatusType.AVAILABLE))
+        with patch(
+            "app.resolvers.ev_resolvers.trigger_ev_status_publish", new=AsyncMock()
+        ) as publish:
+            await update_ev(
+                session, ev.id, UpdateEVInput(status=EVStatusType.AVAILABLE)
+            )
 
         publish.assert_not_awaited()
 
@@ -116,9 +122,13 @@ class UpdateEvPublishTests(unittest.IsolatedAsyncioTestCase):
         session.commit = AsyncMock(side_effect=RuntimeError("commit failed"))
         session.refresh = AsyncMock()
 
-        with patch("app.resolvers.ev_resolvers.trigger_ev_status_publish", new=AsyncMock()) as publish:
+        with patch(
+            "app.resolvers.ev_resolvers.trigger_ev_status_publish", new=AsyncMock()
+        ) as publish:
             with self.assertRaises(RuntimeError):
-                await update_ev(session, ev.id, UpdateEVInput(status=EVStatusType.LEASED))
+                await update_ev(
+                    session, ev.id, UpdateEVInput(status=EVStatusType.LEASED)
+                )
 
         publish.assert_not_awaited()
 

@@ -44,7 +44,9 @@ async def test_create_ev_mutation_persists_record(graphql_request, db_session) -
 
 
 @pytest.mark.asyncio
-async def test_update_ev_mutation_updates_record_with_minimal_selection(graphql_request, db_session) -> None:
+async def test_update_ev_mutation_updates_record_with_minimal_selection(
+    graphql_request, db_session
+) -> None:
     ev = EV(
         make="Nissan",
         model="Leaf",

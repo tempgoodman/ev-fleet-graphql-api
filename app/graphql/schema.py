@@ -27,7 +27,9 @@ class Query:
         status: str | None = None,
     ) -> list[EVType]:
         session = info.context["session"]
-        return cast(list[EVType], await list_evs(session, info, make, max_price, status))
+        return cast(
+            list[EVType], await list_evs(session, info, make, max_price, status)
+        )
 
 
 @strawberry.type

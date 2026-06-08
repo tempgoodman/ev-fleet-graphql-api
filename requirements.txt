@@ -5,3 +5,7 @@ sqlalchemy[asyncio]==2.0.36
 asyncpg==0.30.0
 alembic==1.14.0
 uvicorn[standard]==0.32.0
+pytest==8.4.1
+pytest-asyncio==0.23.8
+httpx==0.28.1
+aiosqlite==0.20.0
